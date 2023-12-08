@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat app</title>
+    <style>
+      #allmessages {
+        display: flex;
+        justify-content: space-between;
+        border: 2px solid black;
+        height: 100%;
+        width: 100%;
+      }
+      #mymessages {
+        /* border: 2px solid red; */
+        margin: 15px;
+      }
+      #othermessages {
+        /* border: 2px solid green; */
+        margin: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Chat App</h1>
+    <input type="text" id="messageInput" placeholder="Enter message" />
+    <div id="allmessages">
+      <div id="mymessages"></div>
+      <div id="othermessages"></div>
+    </div>
+
+    <button id="sendBtn">Send</button>
+    <script src="/socket.io/socket.io.js">
+       // this is the socket.io client library
+      // it is served by the server automatically for us
+      // we can use it to connect to the server
+      // and listen for events from the server
+    </script>
+    <script>
+      const socket = io(); // this is the connection to the server
+      const messageInput = document.getElementById("messageInput");
+      const sendBtn = document.getElementById("sendBtn");
+      const myMessages = document.getElementById("mymessages");
+      const otherMessages = document.getElementById("othermessages");
+      const allMessages = document.getElementById("allmessages");
+
+      socket.on("message", ({ message, id }) => {
+        console.log(message);
+        const p = document.createElement("p");
+        p.style.margin = "10px";
+        p.style.padding = "5px";
+        p.style.border = "2px solid black";
+        p.style.borderRadius = "30%";
+        const br = document.createElement("br");
+
+        p.innerText = message;
+        if (id != socket.id) {
+          myMessages.appendChild(p);
+          otherMessages.appendChild(br);
+        } else {
+          otherMessages.appendChild(p);
+          myMessages.appendChild(br);
+        }
+      });
+
+      sendBtn.addEventListener("click", (e) => {
+        const message = messageInput.value;
+        messageInput.value = "";
+        socket.emit("user-message", message);
+        // user-message is an event and message is the data
+        // that is sent on that event
+        // and event is like a channel in a websocket connection.
+      });
+    </script>
+  </body>
+</html>
